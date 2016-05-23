@@ -7,6 +7,7 @@ package com.epam.structure2name;
 
 import com.epam.indigo.IndigoObject;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,10 +54,11 @@ public class Molecule {
         bonds.add(bond);
     }
 
-    public Molecule() throws IOException {
+    public static final String[] loadFromFile(String fileName) 
+            throws IOException {
         String[] r = {null};
         int i = 0;
-        BufferedReader in = new BufferedReader(new FileReader(ROOTS_FILE));
+        BufferedReader in = new BufferedReader(new FileReader(fileName));
         for (String s = in.readLine(); s != null; s = in.readLine()) {
             if (i >= r.length) {
                 r = Arrays.copyOf(r, 2 * r.length);
@@ -64,7 +66,11 @@ public class Molecule {
             r[i++] = s;
         }
         Arrays.copyOf(r, i);
-        roots = r;
+        return r;
+    }
+    
+    public Molecule() throws IOException {
+        roots = loadFromFile(ROOTS_FILE);
     }
     
     public Molecule(IndigoObject molecule) throws IOException {
@@ -92,5 +98,4 @@ public class Molecule {
         atom.molecule = this;
         maxAtomID = Math.max(atom.id + 1, getMaxAtomID());
     }
-    
 }

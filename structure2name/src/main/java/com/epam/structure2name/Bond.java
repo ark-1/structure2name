@@ -34,13 +34,8 @@ public class Bond {
             return false;
         }
         final Bond other = (Bond) obj;
-        if (!Objects.equals(this.a, other.a)) {
-            return false;
-        }
-        if (!Objects.equals(this.b, other.b)) {
-            return false;
-        }
-        return true;
+        return (Objects.equals(a, other.a) && Objects.equals(b, other.b)) ||
+               (Objects.equals(a, other.b) && Objects.equals(b, other.a));
     }
     
 }

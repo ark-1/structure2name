@@ -54,10 +54,20 @@ public class Atom {
             return false;
         }
         final Atom other = (Atom) obj;
-        if (this.id != other.id) {
+        if (molecule != other.molecule) {
+            return false;
+        }
+        if (id != other.id) {
             return false;
         }
         return true;
     }
     
+    public HashSet<Atom> neighbours() {
+        HashSet<Atom> res = new HashSet<>();
+        bonds.stream().forEach((bond) -> {
+            res.add(this.equals(bond.a) ? bond.b : bond.a);
+        });
+        return res;
+    }
 }
