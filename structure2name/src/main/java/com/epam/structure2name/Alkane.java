@@ -10,6 +10,9 @@ public class Alkane extends Molecule {
     
     public final static String SUFFIXES_FILE = "suffixes.txt",
             LINEARITY_PREFIX_FILE = "linearity prefix.txt";
+    public final BranchCompartor headBranchComparator =
+            new BranchCompartor(true), tailBranchCompartor =
+            new BranchCompartor(false);
     
     protected final String[] suffixes;
     public final String linearityPrefix;
@@ -30,34 +33,27 @@ public class Alkane extends Molecule {
         return null; // TODO 
     }
     
-    public ArrayList<Atom> getPath(Atom start, Atom target, Atom previous) {
+    
+    public ArrayList<Atom> getPath(Atom start, Atom target, Atom prev) {
         ArrayList<Atom> res;
         if (start.equals(target)) {
             res = new ArrayList<>();
             res.add(start);
             return res;
         }
-        ArrayDeque<Atom> stackStart = new ArrayDeque<>();
-        ArrayDeque<Atom> stackPrevious = new ArrayDeque<>();
-        stackStart.add(start);
-        stackPrevious.add(previous);
-        while (!stackStart.isEmpty()) {
-            start = stackStart.pollLast();
-            previous = stackPrevious.pollLast();
-            for (Atom neighbour : start.neighbours()) {
-                if (previous.equals(neighbour)) {
-                    continue;
-                }
-                res = getPath(neighbour, target, start);
-                if (res != null) {
-                    res.add(start);
-                    return res;
-                }
+        for (Atom neighbour : start.neighbours()) {
+            if (prev.equals(neighbour)) {
+                continue;
+            }
+            res = getPath(neighbour, target, start);
+            if (res != null) {
+                res.add(start);
+                return res;
             }
         }
         return null;
     }
-    
+
     public int getDepth(Atom start, Atom previous, int currentDepth) {
         int res = 0;
         for (Atom neighbour : start.neighbours()) {
@@ -104,6 +100,10 @@ public class Alkane extends Molecule {
         res.add(path.get(path.size() / 2));
         res.add(path.get(path.size() - path.size() / 2));
         return res;
+    }
+    
+    public BranchData getBranchData(Atom start, Atom previous) {
+        return null;
     }
     
     public static boolean isAlkane(Molecule molecule) {
