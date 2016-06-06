@@ -7,7 +7,6 @@ package com.epam.structure2name;
 
 import com.epam.indigo.IndigoObject;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -45,10 +44,14 @@ public class Molecule {
     }
     
     public void addBond(Atom a, Atom b) {
+        addBond(a, b, Bond.SINGLE_BOND);
+    }
+    
+    public void addBond(Atom a, Atom b, int bondOrder) {
         if (!atoms.contains(a) | !atoms.contains(b)) {
             throw new IllegalArgumentException("No such atoms here");
         }
-        Bond bond = new Bond(a, b);
+        Bond bond = new Bond(a, b, bondOrder);
         a.bonds.add(bond);
         b.bonds.add(bond);
         bonds.add(bond);
@@ -74,10 +77,15 @@ public class Molecule {
     }
     
     public Molecule(IndigoObject molecule) throws IOException {
+        this(molecule, false);
+    }
+    
+    public Molecule(IndigoObject molecule, boolean onlyCarbons) 
+            throws IOException {
         this();
         HashMap<Integer, Atom> mol = new HashMap<>();
         for (IndigoObject atom : molecule.iterateAtoms()) {
-            if (atom.symbol().toLowerCase().equals("c")) {
+            if (onlyCarbons && atom.symbol().toLowerCase().equals("c")) {
                 Atom last = new Atom(atom.index());
                 addAtom(last);
                 mol.put(last.id, last);

@@ -13,8 +13,10 @@ import java.util.HashSet;
  */
 public class Atom {
     
-    public final int id;
+    public static final int CARBON_NUMBER = 6, HYDROGEN_NUMBER = 1;
+    public final int id, atomicNumber;
     public Molecule molecule = null;
+    
     HashSet<Bond> bonds = new HashSet<>();
 
     public Molecule getMolecule() {
@@ -30,11 +32,16 @@ public class Atom {
     }
 
     public Atom(int id) {
+        this(0, CARBON_NUMBER);
+    }
+
+    public Atom(int id, int atomicNumber) {
         this.id = id;
+        this.atomicNumber = atomicNumber;
     }
 
     public boolean isConnected(Atom atom) {
-        return bonds.contains(new Bond(this, atom));
+        return neighbours().contains(atom);
     }
 
     @Override
@@ -57,10 +64,7 @@ public class Atom {
         if (molecule != other.molecule) {
             return false;
         }
-        if (id != other.id) {
-            return false;
-        }
-        return true;
+        return id == other.id;
     }
     
     public HashSet<Atom> neighbours() {

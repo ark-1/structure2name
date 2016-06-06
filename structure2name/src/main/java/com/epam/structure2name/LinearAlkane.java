@@ -16,5 +16,12 @@ public class LinearAlkane extends Alkane {
                 roots[atoms.size() - 1] + suffixes[0];
     }
     
-    
+    public static boolean isLinearAlkane(Alkane alkane) {
+        for (Atom atom : alkane.atoms()) {
+            if (atom.neighbours().size() > 2) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
