@@ -4,10 +4,11 @@ package com.epam.structure2name;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
-public abstract class DFS {
+public abstract class DFS<T> {
 
     public abstract void enter(Atom v);
     public abstract void exit(Atom v);
+    public abstract T result(); 
     
     public HashSet<Atom> visited = new HashSet<>();
     

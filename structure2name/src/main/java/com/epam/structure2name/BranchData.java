@@ -16,7 +16,7 @@ public class BranchData {
     public ArrayList<Atom> chain = new ArrayList<>();
     public final boolean isNegativeInfinity;
     
-    public static final BranchData NEGATIVE_INFIMITY = new BranchData();
+    public static final BranchData NEGATIVE_INFINITY = new BranchData();
     
     private BranchData() {
         isNegativeInfinity = true;

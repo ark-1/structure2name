@@ -72,6 +72,13 @@ public class Molecule {
         return r;
     }
     
+    public Atom getAnyAtom() {
+        for (Atom atom : atoms) {
+            return atom;
+        }
+        return null;
+    }
+    
     public Molecule() throws IOException {
         roots = loadFromFile(ROOTS_FILE);
     }

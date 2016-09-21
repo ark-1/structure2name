@@ -33,77 +33,121 @@ public class Alkane extends Molecule {
         return null; // TODO 
     }
     
-    
-    public ArrayList<Atom> getPath(Atom start, Atom target, Atom prev) {
-        ArrayList<Atom> res;
-        if (start.equals(target)) {
-            res = new ArrayList<>();
-            res.add(start);
-            return res;
-        }
-        for (Atom neighbour : start.neighbours()) {
-            if (prev.equals(neighbour)) {
-                continue;
+    public ArrayList<Atom> getPath(Atom start, final Atom target) {
+        DFS<ArrayList<Atom>> pathDfs = new DFS<ArrayList<Atom>>() {
+            private boolean found = false;
+            private final ArrayList<Atom> res = new ArrayList<>();
+            
+            @Override
+            public void enter(Atom v) {
+                if (!found) {
+                    res.add(v);
+                }
+                if (v.equals(v)) {
+                    found = true;
+                }
             }
-            res = getPath(neighbour, target, start);
-            if (res != null) {
-                res.add(start);
+
+            @Override
+            public void exit(Atom v) {
+                if (!found) {
+                    res.remove(res.size() - 1);
+                }
+            }
+
+            @Override
+            public ArrayList<Atom> result() {
                 return res;
             }
-        }
-        return null;
+        };
+        pathDfs.dfs(start);
+        return pathDfs.result();
     }
 
-    public int getDepth(Atom start, Atom previous, int currentDepth) {
-        int res = 0;
-        for (Atom neighbour : start.neighbours()) {
-            if (previous.equals(neighbour)) {
-                continue;
+    public int getDepth(Atom start) {
+        DFS<Integer> depthDfs = new DFS() {
+            private int currentDepth = 0, maxDepth = 0;
+            
+            @Override
+            public void enter(Atom v) {
+                currentDepth++;
+                maxDepth = Integer.max(maxDepth, currentDepth);
             }
-            res = Integer.max(res, getDepth(neighbour, start, currentDepth + 1));
-        }
-        return res;
-    }
-    
-    public Atom getDeepest(Atom start, Atom previous,   int currentDepth, 
-                                                        int depth) {
-        if (currentDepth == depth) {
-            return start;
-        }
-        for (Atom neighbour : start.neighbours()) {
-            if (previous.equals(neighbour)) {
-                continue;
+
+            @Override
+            public void exit(Atom v) {
+                currentDepth--;
             }
-            Atom res = getDeepest(neighbour, start, currentDepth + 1, depth);
-            if (res != null) {
-                return res;
+
+            @Override
+            public Integer result() {
+                return maxDepth;
             }
-        }
-        return null;
+        };
+        depthDfs.dfs(start);
+        return depthDfs.result();
     }
     
     public Atom getDeepest(Atom start) {
-        return getDeepest(start, null, 0, getDepth(start, null, 0));
-    }
-    
-    public Atom getAnyAtom() {
-        for (Atom atom : atoms) {
-            return atom;
-        }
-        return null;
+        DFS<Atom> deepestDfs = new DFS<Atom>() {
+            private int maxDepth = -1, currentDepth = 0;
+            private Atom res = null;
+            
+            @Override
+            public void enter(Atom v) {
+                currentDepth++;
+                if (currentDepth > maxDepth) {
+                    maxDepth = currentDepth;
+                    res = v;
+                }
+            }
+
+            @Override
+            public void exit(Atom v) {
+                currentDepth--;
+            }
+
+            @Override
+            public Atom result() {
+                return res;
+            }
+        };
+        deepestDfs.dfs(start);
+        return deepestDfs.result();
     }
     
     public HashSet<Atom> getCentres() {
         HashSet<Atom> res = new HashSet<>();
         Atom s = Alkane.this.getDeepest(getAnyAtom());
-        ArrayList<Atom> path = getPath(s, Alkane.this.getDeepest(s), null);
+        ArrayList<Atom> path = getPath(s, Alkane.this.getDeepest(s));
         res.add(path.get(path.size() / 2));
         res.add(path.get(path.size() - path.size() / 2));
         return res;
     }
     
-    public BranchData getBranchData(Atom start, Atom previous) {
-        return null;
+    public BranchData getBranchData(Atom centre, Atom secondCentre) {
+        DFS<BranchData> branchDataDfs = new DFS<BranchData>() {
+            private final ArrayDeque<Atom>  stack       = new ArrayDeque<>(),
+                                            stackPrevs  = new ArrayDeque<>();
+            
+            @Override
+            public void enter(Atom v) {
+                stackPrevs.add(stack.peekLast());
+                stack.add(v);
+            }
+
+            @Override
+            public void exit(Atom v) {
+                stackPrevs.removeLast();
+                stack.removeLast();
+            }
+
+            @Override
+            public BranchData result() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
+        return null;//TODO
     }
     
     public static boolean isAlkane(Molecule molecule) {
