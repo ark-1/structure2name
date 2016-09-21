@@ -6,12 +6,12 @@ import java.util.Comparator;
  *
  * @author Aleksandr_Savelev
  */
-public class BranchCompartor implements Comparator<BranchData> {
+public class BranchComparator implements Comparator<BranchData> {
     public final boolean head;
     
     
     
-    public BranchCompartor(boolean head) {
+    public BranchComparator(boolean head) {
         this.head = head;
     }
     
@@ -23,7 +23,7 @@ public class BranchCompartor implements Comparator<BranchData> {
         if (o1.isNegativeInfinity ^ o2.isNegativeInfinity) {
             return o1.isNegativeInfinity ? -1 : 1;
         }
-        int res = Integer.compare(o1.depth, o2.depth);
+        int res = Integer.compare(o1.chain.size(), o2.chain.size());
         if (res != 0) {
             return res;
         }

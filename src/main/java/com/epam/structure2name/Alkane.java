@@ -4,15 +4,16 @@ import com.epam.indigo.IndigoObject;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Alkane extends Molecule {
     
     public final static String SUFFIXES_FILE = "suffixes.txt",
             LINEARITY_PREFIX_FILE = "linearity prefix.txt";
-    public final BranchCompartor headBranchComparator =
-            new BranchCompartor(true), tailBranchCompartor =
-            new BranchCompartor(false);
+    public final BranchComparator headBranchComparator =
+            new BranchComparator(true), tailBranchComparator =
+            new BranchComparator(false);
     
     protected final String[] suffixes;
     public final String linearityPrefix;
@@ -30,7 +31,12 @@ public class Alkane extends Molecule {
 
     @Override
     public String getName() {
-        return null; // TODO 
+        Atom[] centers = new Atom[2];
+        int i = 0;
+        for (Atom center : getCenters()) {
+            centers[i++] = center;
+        }
+        return getParentChain(centers[0], centers[1]).toString(); // TODO 
     }
     
     public ArrayList<Atom> getPath(Atom start, final Atom target) {
@@ -43,7 +49,7 @@ public class Alkane extends Molecule {
                 if (!found) {
                     res.add(v);
                 }
-                if (v.equals(v)) {
+                if (v.equals(target)) {
                     found = true;
                 }
             }
@@ -116,38 +122,36 @@ public class Alkane extends Molecule {
         return deepestDfs.result();
     }
     
-    public HashSet<Atom> getCentres() {
+    public HashSet<Atom> getCenters() {
         HashSet<Atom> res = new HashSet<>();
         Atom s = Alkane.this.getDeepest(getAnyAtom());
         ArrayList<Atom> path = getPath(s, Alkane.this.getDeepest(s));
         res.add(path.get(path.size() / 2));
-        res.add(path.get(path.size() - path.size() / 2));
+        res.add(path.get(path.size() - 1 - path.size() / 2));
         return res;
     }
     
-    public BranchData getBranchData(Atom centre, Atom secondCentre) {
-        DFS<BranchData> branchDataDfs = new DFS<BranchData>() {
-            private final ArrayDeque<Atom>  stack       = new ArrayDeque<>(),
-                                            stackPrevs  = new ArrayDeque<>();
-            
-            @Override
-            public void enter(Atom v) {
-                stackPrevs.add(stack.peekLast());
-                stack.add(v);
-            }
-
-            @Override
-            public void exit(Atom v) {
-                stackPrevs.removeLast();
-                stack.removeLast();
-            }
-
-            @Override
-            public BranchData result() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-        return null;//TODO
+    public ArrayList<Atom> getParentChain(Atom center, Atom secondCenter) {
+        BranchDFS branchDFS = new BranchDFS(center, 
+                                                headBranchComparator);
+        branchDFS.dfs(secondCenter);
+        BranchData head1 = branchDFS.result();
+        branchDFS = new BranchDFS(secondCenter, headBranchComparator);
+        branchDFS.dfs(center);
+        BranchData head2 = branchDFS.result();
+        branchDFS = new BranchDFS(center, tailBranchComparator);
+        branchDFS.dfs(secondCenter);
+        BranchData tail1 = branchDFS.result();
+        branchDFS = new BranchDFS(secondCenter, tailBranchComparator);
+        branchDFS.dfs(secondCenter);
+        BranchData tail2 = branchDFS.result();
+        head1.connect(tail2);
+        head2.connect(tail1);
+        if (headBranchComparator.compare(head1, head2) > 0) {
+            return head1.chain;
+        } else {
+            return head2.chain;
+        }
     }
     
     public static boolean isAlkane(Molecule molecule) {

@@ -28,6 +28,8 @@ public class AlkaneTest {
     public void testBasicGetName() throws IOException {
         IndigoObject mol1 = indigo.loadMolecule("CCCCCC");
         assertEquals("n-hexane", Namer.structure2name(mol1));
+        mol1 = indigo.loadMolecule("CCC(C)C(C)CC");
+        assertEquals("3,4-dimethylhexane", Namer.structure2name(mol1));
     }
     
     public AlkaneTest() {
