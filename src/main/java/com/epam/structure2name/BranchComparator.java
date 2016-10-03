@@ -17,11 +17,11 @@ public class BranchComparator implements Comparator<BranchData> {
     
     @Override
     public int compare(BranchData o1, BranchData o2) {
-        if (o1.isNegativeInfinity && o2.isNegativeInfinity) {
+        if (o1.isNegativeInfinity() && o2.isNegativeInfinity()) {
             return 0;
         }
-        if (o1.isNegativeInfinity ^ o2.isNegativeInfinity) {
-            return o1.isNegativeInfinity ? -1 : 1;
+        if (o1.isNegativeInfinity() ^ o2.isNegativeInfinity()) {
+            return o1.isNegativeInfinity() ? -1 : 1;
         }
         int res = Integer.compare(o1.chain.size(), o2.chain.size());
         if (res != 0) {

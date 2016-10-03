@@ -13,16 +13,19 @@ public class BranchDFS extends DFS<BranchData> {
         visited.add(otherCenter);
     }
     
-    private final ArrayDeque<Atom>  stack       = new ArrayDeque<>(),
+    private final ArrayDeque<Atom>  stackLocal       = new ArrayDeque<>(),
             stackPrevs  = new ArrayDeque<>();
     private final HashMap<Atom, BranchData> branches = new HashMap<>();
     private final BranchComparator cmp;
+    private Atom start = null;
     
     @Override
     public void enter(Atom v) {
-        stackPrevs.add(stack.peekLast());
-        stack.add(v);
-        branches.put(v, BranchData.NEGATIVE_INFINITY);
+        Atom parent = stackLocal.peek();
+        if (parent != null) {
+            stackPrevs.addFirst(parent);
+        }
+        stackLocal.addFirst(v);
     }
     
     @Override
@@ -31,12 +34,12 @@ public class BranchDFS extends DFS<BranchData> {
             branches.put(v, new BranchData(v));
         }
         BranchData current = branches.get(v);
-        Atom parent = stackPrevs.peekLast();
-        stackPrevs.removeLast();
-        stack.removeLast();
+        Atom parent = stackPrevs.peek();
+        stackLocal.pop();
         if (parent == null) {
             return;
         }
+        stackPrevs.pop();
         current.append(parent);
         if (branches.get(parent) == null) {
             branches.put(parent, current);
@@ -49,7 +52,13 @@ public class BranchDFS extends DFS<BranchData> {
     }
 
     @Override
+    public void dfs(Atom start) {
+        this.start = start;
+        super.dfs(start);
+    }
+    
+    @Override
     public BranchData result() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return branches.get(start);
     }
 }

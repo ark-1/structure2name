@@ -6,6 +6,7 @@
 package com.epam.structure2name;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -14,11 +15,9 @@ import java.util.ArrayList;
 public class BranchData {
     public int branches = 0, firstBranch = -1, lastBranch = -1;
     public ArrayList<Atom> chain = new ArrayList<>();
-    public final boolean isNegativeInfinity;
+    private boolean isNegativeInfinity;
     
-    public static final BranchData NEGATIVE_INFINITY = new BranchData();
-    
-    private BranchData() {
+    public BranchData() {
         isNegativeInfinity = true;
     }
     
@@ -28,10 +27,12 @@ public class BranchData {
     }
     
     public void append(Atom atom) {
+        isNegativeInfinity = false;
         chain.add(atom);
     }
     
     public void addBranch() {
+        isNegativeInfinity = false;
         branches++;
         lastBranch = chain.size() - 1;
         if (firstBranch == -1) {
@@ -40,7 +41,10 @@ public class BranchData {
     }
     
     public void connect(BranchData another) {
-        for (Atom atom : another.chain) {
+        isNegativeInfinity = false;
+        ArrayList<Atom> reverseChain = (ArrayList<Atom>) another.chain.clone();
+        Collections.reverse(reverseChain);
+        for (Atom atom : reverseChain) {
             chain.add(atom);
         }
         if (another.branches == 0) {
@@ -51,5 +55,9 @@ public class BranchData {
         if (firstBranch == -1) {
             firstBranch = chain.size() - 1 - another.lastBranch;
         }
+    }
+
+    boolean isNegativeInfinity() {
+        return isNegativeInfinity;
     }
 }

@@ -2,9 +2,7 @@ package com.epam.structure2name;
 
 import com.epam.indigo.IndigoObject;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Alkane extends Molecule {
@@ -143,7 +141,7 @@ public class Alkane extends Molecule {
         branchDFS.dfs(secondCenter);
         BranchData tail1 = branchDFS.result();
         branchDFS = new BranchDFS(secondCenter, tailBranchComparator);
-        branchDFS.dfs(secondCenter);
+        branchDFS.dfs(center);
         BranchData tail2 = branchDFS.result();
         head1.connect(tail2);
         head2.connect(tail1);
