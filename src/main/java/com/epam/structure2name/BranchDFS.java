@@ -13,11 +13,21 @@ public class BranchDFS extends DFS<BranchData> {
         visited.add(otherCenter);
     }
     
+    public BranchDFS(BranchComparator cmp) {
+        this.cmp = cmp;
+    }
+    
     private final ArrayDeque<Atom>  stackLocal       = new ArrayDeque<>(),
             stackPrevs  = new ArrayDeque<>();
     private final HashMap<Atom, BranchData> branches = new HashMap<>();
     private final BranchComparator cmp;
     private Atom start = null;
+    
+    public void exclude(Atom v) {
+        if (v != null) {
+            visited.add(v);
+        }
+    }
     
     @Override
     public void enter(Atom v) {

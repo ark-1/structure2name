@@ -18,7 +18,7 @@ public class LinearAlkane extends Alkane {
     
     public static boolean isLinearAlkane(Alkane alkane) {
         for (Atom atom : alkane.atoms()) {
-            if (atom.neighbours().size() > 2) {
+            if (atom.neighbors().size() > 2) {
                 return false;
             }
         }

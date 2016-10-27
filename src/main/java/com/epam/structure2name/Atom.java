@@ -41,7 +41,7 @@ public class Atom {
     }
 
     public boolean isConnected(Atom atom) {
-        return neighbours().contains(atom);
+        return neighbors().contains(atom);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Atom {
         return id == other.id;
     }
     
-    public HashSet<Atom> neighbours() {
+    public HashSet<Atom> neighbors() {
         HashSet<Atom> res = new HashSet<>();
         bonds.stream().forEach((bond) -> {
             res.add(this.equals(bond.a) ? bond.b : bond.a);

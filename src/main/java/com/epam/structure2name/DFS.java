@@ -31,7 +31,7 @@ public abstract class DFS<T> {
             }
             visited.add(v);
             enter(v);
-            for (Atom neighbour : v.neighbours()) {
+            for (Atom neighbour : v.neighbors()) {
                 if (!visited.contains(neighbour)) {
                     stack.addFirst(neighbour);
                 }

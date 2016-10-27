@@ -121,17 +121,45 @@ public class Alkane extends Molecule {
     }
     
     public HashSet<Atom> getCenters() {
+        return getCenters(getAnyAtom());
+    }
+    
+    public HashSet<Atom> getCenters(Atom start) {
         HashSet<Atom> res = new HashSet<>();
-        Atom s = Alkane.this.getDeepest(getAnyAtom());
+        Atom s = Alkane.this.getDeepest(start);
         ArrayList<Atom> path = getPath(s, Alkane.this.getDeepest(s));
         res.add(path.get(path.size() / 2));
         res.add(path.get(path.size() - 1 - path.size() / 2));
         return res;
     }
     
+    public String getShortName(Atom start) {
+        ArrayList<Atom> chain = getParentChain(start);
+        ArrayList<String> substituents = new ArrayList<>();
+        ArrayList<Integer> substituentCoordinates = new ArrayList<>();
+        for (int i = 0; i < chain.size(); i++) {
+            Atom atom = chain.get(i);
+            HashSet<Atom> neighbors = atom.neighbors();
+            if (i > 0) {
+                neighbors.remove(chain.get(i - 1));
+            }
+            if (i < chain.size() - 1) {
+                neighbors.remove(chain.get(i + 1));
+            }
+            for (Atom neighbor : neighbors) {
+                neighbor.bonds.remove(new Bond(atom, neighbor));
+                substituentCoordinates.add(i);
+                substituents.add(getShortName(neighbor));
+                neighbor.bonds.add(new Bond(atom, neighbor));
+            }
+        }
+        
+        return null;//TODO
+    }
+    
     public ArrayList<Atom> getParentChain(Atom center, Atom secondCenter) {
         BranchDFS branchDFS = new BranchDFS(center, 
-                                                headBranchComparator);
+                                            headBranchComparator);
         branchDFS.dfs(secondCenter);
         BranchData head1 = branchDFS.result();
         branchDFS = new BranchDFS(secondCenter, headBranchComparator);
@@ -151,6 +179,19 @@ public class Alkane extends Molecule {
             return head2.chain;
         }
     }
+    
+    public ArrayList<Atom> getParentChain(Atom center) {
+        BranchDFS branchDFS = new BranchDFS(headBranchComparator);
+        branchDFS.dfs(center);
+        BranchData head = branchDFS.result();
+        head.chain.remove(head.chain.size() - 1);
+        branchDFS = new BranchDFS(  head.chain.get(head.chain.size() - 1), 
+                                    tailBranchComparator);
+        branchDFS.dfs(center);
+        head.connect(branchDFS.result());
+        return head.chain;
+    }
+
     
     public static boolean isAlkane(Molecule molecule) {
         int atoms = 0, bonds = 0;
