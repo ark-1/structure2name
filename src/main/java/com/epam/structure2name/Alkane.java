@@ -3,23 +3,24 @@ package com.epam.structure2name;
 import com.epam.indigo.IndigoObject;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Alkane extends Molecule {
     
-    public final static String SUFFIXES_FILE = "suffixes.txt",
-            LINEARITY_PREFIX_FILE = "linearity prefix.txt";
     public final BranchComparator headBranchComparator =
             new BranchComparator(true), tailBranchComparator =
             new BranchComparator(false);
     
-    protected final String[] suffixes;
-    public final String linearityPrefix;
+    public static final String  SUFFIX = "ane", GROUP_SUFFIX = "yl",
+                                LINEARITY_PREFIX = "n", SEPARATOR = "-",
+                                NUMBERS_SEPARATOR = ",";
     
     public Alkane(IndigoObject molecule) throws IOException {
         super(molecule, true);
-        suffixes = loadFromFile(SUFFIXES_FILE);
-        linearityPrefix = loadFromFile(LINEARITY_PREFIX_FILE)[0];
     }
     
     private Alkane(IndigoObject molecule, boolean onlyCarbons) 
@@ -34,7 +35,10 @@ public class Alkane extends Molecule {
         for (Atom center : getCenters()) {
             centers[i++] = center;
         }
-        return getParentChain(centers[0], centers[1]).toString(); // TODO 
+        if (centers[1] == null) {
+            return getShortName(getParentChain(centers[0])) + SUFFIX;
+        }
+        return getShortName(getParentChain(centers[0], centers[1])) + SUFFIX;
     }
     
     public ArrayList<Atom> getPath(Atom start, final Atom target) {
@@ -133,8 +137,7 @@ public class Alkane extends Molecule {
         return res;
     }
     
-    public String getShortName(Atom start) {
-        ArrayList<Atom> chain = getParentChain(start);
+    public String getShortName(ArrayList<Atom> chain) {
         ArrayList<String> substituents = new ArrayList<>();
         ArrayList<Integer> substituentCoordinates = new ArrayList<>();
         for (int i = 0; i < chain.size(); i++) {
@@ -148,13 +151,46 @@ public class Alkane extends Molecule {
             }
             for (Atom neighbor : neighbors) {
                 neighbor.bonds.remove(new Bond(atom, neighbor));
-                substituentCoordinates.add(i);
-                substituents.add(getShortName(neighbor));
+                substituentCoordinates.add(i + 1);
+                substituents.add(getShortName(getParentChain(neighbor)));
                 neighbor.bonds.add(new Bond(atom, neighbor));
             }
         }
-        
-        return null;//TODO
+        TreeMap<String, TreeMap<Integer, Integer>> groups = new TreeMap<>();
+        for (int i = 0; i < substituents.size(); i++) {
+            String substituent = substituents.get(i);
+            int coordinate = substituentCoordinates.get(i);
+            if (!groups.containsKey(substituent)) {
+                groups.put(substituent, new TreeMap<>());
+            }
+            TreeMap<Integer, Integer> group = groups.get(substituent);
+            if (!group.containsKey(coordinate)) {
+                groups.get(substituent).put(coordinate, 0);
+            }
+            group.put(coordinate, group.get(coordinate) + 1);
+        }
+        int i = 0;
+        String result = "";
+        for (String group : groups.keySet()) {
+            TreeMap<Integer, Integer> coordinates = groups.get(group);
+            if (i != 0) {
+                result += SEPARATOR;
+            }
+            i++;
+            int j = 0;
+            for (int coordinate : coordinates.keySet()) {
+                for (int k = 0; k < coordinates.get(coordinate); k++) {
+                    if (j != 0) {
+                        result += NUMBERS_SEPARATOR;
+                    }
+                    j++;
+                    result += coordinate;
+                }
+            }
+            result += SEPARATOR + factors[j] + group + 
+                    GROUP_SUFFIX;
+        }
+        return result + roots[chain.size()];
     }
     
     public ArrayList<Atom> getParentChain(Atom center, Atom secondCenter) {
@@ -174,8 +210,10 @@ public class Alkane extends Molecule {
         head1.connect(tail2);
         head2.connect(tail1);
         if (headBranchComparator.compare(head1, head2) > 0) {
+            Collections.reverse(head1.chain);
             return head1.chain;
         } else {
+            Collections.reverse(head2.chain);
             return head2.chain;
         }
     }
@@ -184,11 +222,14 @@ public class Alkane extends Molecule {
         BranchDFS branchDFS = new BranchDFS(headBranchComparator);
         branchDFS.dfs(center);
         BranchData head = branchDFS.result();
-        head.chain.remove(head.chain.size() - 1);
-        branchDFS = new BranchDFS(  head.chain.get(head.chain.size() - 1), 
-                                    tailBranchComparator);
-        branchDFS.dfs(center);
-        head.connect(branchDFS.result());
+        if (head.chain.size() > 1) {
+            head.chain.remove(head.chain.size() - 1);
+            branchDFS = new BranchDFS(  head.chain.get(head.chain.size() - 1), 
+                                        tailBranchComparator);
+            branchDFS.dfs(center);
+            head.connect(branchDFS.result());
+        }
+        Collections.reverse(head.chain);
         return head.chain;
     }
 

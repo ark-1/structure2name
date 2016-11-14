@@ -33,17 +33,16 @@ public class AlkaneTest {
 //        mol1 = indigo.loadMolecule("CCC(C)C(C)CC");
 //        assertEquals("3,4-dimethylhexane", Namer.structure2name(mol1));
     }
-   
+    
     @Test
-    public void testBasicParentChain() throws IOException {
+    public void testBasicAlkaneGetName() throws IOException {
         Alkane alk = new Alkane(indigo.loadMolecule("CCC(C)C(C)CC"));
-        Atom[] centers = new Atom[2];
-        int i = 0;
-        for (Atom center : alk.getCenters()) {
-            centers[i++] = center;
-        }
-        assertEquals("[0, 1, 2, 4, 6, 7]", alk.
-                getParentChain(centers[0], centers[1]).toString());
+        assertEquals("3,4-dimethylhexane", 
+                alk.getName());
+        alk = new Alkane(indigo.loadMolecule("CCCC(C)C(CCC)CC(C)(C)CCC"));
+        System.out.println(alk.getName());
+        assertEquals("4,4,7-trimethyl-6-propyldecane", 
+                alk.getName());
     }
     
     public AlkaneTest() {

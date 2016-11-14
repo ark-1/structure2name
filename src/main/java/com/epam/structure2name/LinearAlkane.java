@@ -12,8 +12,8 @@ public class LinearAlkane extends Alkane {
 
     @Override
     public String getName() {
-        return (atoms.size() > 3 ? linearityPrefix : "") + 
-                roots[atoms.size() - 1] + suffixes[0];
+        return (atoms.size() > 3 ? LINEARITY_PREFIX + SEPARATOR : "") + 
+                roots[atoms.size()] + SUFFIX;
     }
     
     public static boolean isLinearAlkane(Alkane alkane) {
