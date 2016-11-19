@@ -25,9 +25,11 @@ public class Molecule {
 
     protected final String[] roots;
     protected final String[] factors;
+    protected final String[] complexFactors;
     
     public static final String ROOTS_FILE = "roots.txt";
     public static final String FACTORS_FILE = "factors.txt";
+    public static final String COMPLEX_FACTORS_FILE = "complex_factors.txt";
     
     public int getMaxAtomID() {
         return maxAtomID;
@@ -84,6 +86,7 @@ public class Molecule {
     public Molecule() throws IOException {
         roots = loadFromFile(ROOTS_FILE);
         factors = loadFromFile(FACTORS_FILE);
+        complexFactors = loadFromFile(COMPLEX_FACTORS_FILE);
     }
     
     public Molecule(IndigoObject molecule) throws IOException {

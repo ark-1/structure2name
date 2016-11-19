@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="2" failures="0" name="AlkaneTest" time="0.562" errors="0" skipped="0">
+<testsuite tests="2" failures="0" name="AlkaneTest" time="0.609" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_31\jre\bin"/>
@@ -61,6 +61,6 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="AlkaneTest" name="testBasicAlkaneGetName" time="0.46"/>
-  <testcase classname="AlkaneTest" name="testBasicGetName" time="0.005"/>
+  <testcase classname="AlkaneTest" name="testBasicAlkaneGetName" time="0.503"/>
+  <testcase classname="AlkaneTest" name="testBasicLinearGetName" time="0"/>
 </testsuite>

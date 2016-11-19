@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Alkane extends Molecule {
     
@@ -15,9 +13,9 @@ public class Alkane extends Molecule {
             new BranchComparator(true), tailBranchComparator =
             new BranchComparator(false);
     
-    public static final String  SUFFIX = "ane", GROUP_SUFFIX = "yl",
-                                LINEARITY_PREFIX = "n", SEPARATOR = "-",
-                                NUMBERS_SEPARATOR = ",";
+    public static final String  SUFFIX = "ane", SHORT_SUFFIX = "an",
+                                GROUP_SUFFIX = "yl", LINEARITY_PREFIX = "n", 
+                                SEPARATOR = "-", NUMBERS_SEPARATOR = ",";
     
     public Alkane(IndigoObject molecule) throws IOException {
         super(molecule, true);
@@ -137,9 +135,23 @@ public class Alkane extends Molecule {
         return res;
     }
     
+    public boolean isComplex(String name) {
+        for (char c : name.toCharArray()) {
+            if (Character.isDigit(c)) {
+                return true;
+            }
+        }
+        if (name.contains(SEPARATOR)) {
+            return true;
+        }
+        return false;
+    }
+    
     public String getShortName(ArrayList<Atom> chain) {
         ArrayList<String> substituents = new ArrayList<>();
         ArrayList<Integer> substituentCoordinates = new ArrayList<>();
+        ArrayList<Integer> substituentAdjoiningPoints = new ArrayList<>();
+        ArrayList<String> substituentBaseNames = new ArrayList<>();
         for (int i = 0; i < chain.size(); i++) {
             Atom atom = chain.get(i);
             HashSet<Atom> neighbors = atom.neighbors();
@@ -152,13 +164,22 @@ public class Alkane extends Molecule {
             for (Atom neighbor : neighbors) {
                 neighbor.bonds.remove(new Bond(atom, neighbor));
                 substituentCoordinates.add(i + 1);
-                substituents.add(getShortName(getParentChain(neighbor)));
+                ArrayList<Atom> groupChain = getGroupParentChain(neighbor);
+                substituentAdjoiningPoints.add(
+                        groupChain.indexOf(neighbor) + 1);
+                substituents.add(roots[groupChain.size()] + "$" +
+                                 getShortName(groupChain));
                 neighbor.bonds.add(new Bond(atom, neighbor));
             }
         }
         TreeMap<String, TreeMap<Integer, Integer>> groups = new TreeMap<>();
         for (int i = 0; i < substituents.size(); i++) {
             String substituent = substituents.get(i);
+            int adjoiningPoint = substituentAdjoiningPoints.get(i);
+            if (adjoiningPoint != 1) {
+                substituent += SHORT_SUFFIX + SEPARATOR + adjoiningPoint +
+                               SEPARATOR;
+            }
             int coordinate = substituentCoordinates.get(i);
             if (!groups.containsKey(substituent)) {
                 groups.put(substituent, new TreeMap<>());
@@ -187,8 +208,14 @@ public class Alkane extends Molecule {
                     result += coordinate;
                 }
             }
-            result += SEPARATOR + factors[j] + group + 
-                    GROUP_SUFFIX;
+            group = group.substring(group.indexOf("$") + 1);
+            group += GROUP_SUFFIX;
+            if (isComplex(group)) {
+                group = complexFactors[j] + "(" + group + ")";
+            } else {
+                group = factors[j] + group;
+            }
+            result += SEPARATOR + group;
         }
         return result + roots[chain.size()];
     }
@@ -229,7 +256,28 @@ public class Alkane extends Molecule {
             branchDFS.dfs(center);
             head.connect(branchDFS.result());
         }
-        Collections.reverse(head.chain);
+        return head.chain;
+    }
+
+    public ArrayList<Atom> getGroupParentChain(Atom start) {
+        HashSet<Atom> c = getCenters(start);
+        if (c.size() == 1 && c.iterator().next().equals(start)) {
+            return getParentChain(start);
+        }
+        BranchDFS branchDFS = new BranchDFS(tailBranchComparator);
+        branchDFS.dfs(start);
+        BranchData tail = branchDFS.result();
+        BranchData head;
+        if (tail.chain.size() > 1) {
+            tail.chain.remove(tail.chain.size() - 1);
+            branchDFS = new BranchDFS(  tail.chain.get(tail.chain.size() - 1), 
+                                        headBranchComparator);
+            branchDFS.dfs(start);
+            head = branchDFS.result();
+            head.connect(tail);
+        } else {
+            head = tail;
+        }
         return head.chain;
     }
 
