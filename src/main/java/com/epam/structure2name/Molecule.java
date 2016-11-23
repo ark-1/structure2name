@@ -24,12 +24,21 @@ public class Molecule {
     protected final HashSet<Bond> bonds = new HashSet<>();
 
     protected final String[] roots;
+    protected final String[] shortSuffixes;
+    protected final String[] suffixes;
     protected final String[] factors;
+    protected final String[] multivalenceSuffixes;
     protected final String[] complexFactors;
     
     public static final String ROOTS_FILE = "roots.txt";
+    public static final String SHORT_SUFFIXES_FILE = "short_suffixes.txt";
+    public static final String SUFFIXES_FILE = "suffixes.txt";
     public static final String FACTORS_FILE = "factors.txt";
+    public static final String MULTIVALENCE_SUFFIXES_FILE = 
+                               "multivalence_suffixes.txt";
     public static final String COMPLEX_FACTORS_FILE = "complex_factors.txt";
+    public static final String SEPARATOR = "-", NUMBERS_SEPARATOR = ",",
+                               GROUP_SUFFIX = "yl", CONNECTOR = "a";
     
     public int getMaxAtomID() {
         return maxAtomID;
@@ -85,7 +94,10 @@ public class Molecule {
     
     public Molecule() throws IOException {
         roots = loadFromFile(ROOTS_FILE);
+        shortSuffixes = loadFromFile(SHORT_SUFFIXES_FILE);
+        suffixes = loadFromFile(SUFFIXES_FILE);
         factors = loadFromFile(FACTORS_FILE);
+        multivalenceSuffixes = loadFromFile(MULTIVALENCE_SUFFIXES_FILE);
         complexFactors = loadFromFile(COMPLEX_FACTORS_FILE);
     }
     
@@ -107,7 +119,8 @@ public class Molecule {
         }
         for (IndigoObject bond : molecule.iterateBonds()) {
             addBond(mol.get(bond.source().index()),
-                    mol.get(bond.destination().index()));
+                    mol.get(bond.destination().index()),
+                    bond.bondOrder());
         }
     }
 

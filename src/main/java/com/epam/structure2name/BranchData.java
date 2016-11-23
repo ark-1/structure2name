@@ -13,9 +13,11 @@ import java.util.Collections;
  * @author ARK1
  */
 public class BranchData {
-    public int branches = 0, firstBranch = -1, lastBranch = -1;
     public ArrayList<Atom> chain = new ArrayList<>();
     private boolean isNegativeInfinity;
+    public ArrayList<Integer> branchesCoordinates = new ArrayList<>();
+    public ArrayList<Integer> doubleBonds = new ArrayList<>();
+    public ArrayList<Integer> multipleBonds = new ArrayList<>();
     
     public BranchData() {
         isNegativeInfinity = true;
@@ -27,17 +29,22 @@ public class BranchData {
     }
     
     public void append(Atom atom) {
+        switch (Bond.getBond(atom, chain.get(chain.size() - 1)).bondOrder) {
+            case Bond.DOUBLE_BOND:
+                doubleBonds.add(chain.size());
+                multipleBonds.add(chain.size());
+                break;
+            case Bond.TRIPLE_BOND:
+                multipleBonds.add(chain.size());
+                break;
+        }
         isNegativeInfinity = false;
         chain.add(atom);
     }
     
     public void addBranch() {
         isNegativeInfinity = false;
-        branches++;
-        lastBranch = chain.size() - 1;
-        if (firstBranch == -1) {
-            firstBranch = lastBranch;
-        }
+        branchesCoordinates.add(chain.size() - 1);
     }
     
     public void connect(BranchData another) {
@@ -47,13 +54,14 @@ public class BranchData {
         for (Atom atom : reverseChain) {
             chain.add(atom);
         }
-        if (another.branches == 0) {
-            return;
+        for (int i : another.branchesCoordinates) {
+            branchesCoordinates.add(chain.size() - 1 - i);
         }
-        branches += another.branches;
-        lastBranch =    chain.size() - 1 - another.firstBranch;
-        if (firstBranch == -1) {
-            firstBranch = chain.size() - 1 - another.lastBranch;
+        for (int i : another.doubleBonds) {
+            doubleBonds.add(chain.size() - i);
+        }
+        for (int i : another.multipleBonds) {
+            multipleBonds.add(chain.size() - i);
         }
     }
 

@@ -27,6 +27,16 @@ public class Bond {
         this(a, b, SINGLE_BOND);
     }
     
+    public static Bond getBond(Atom a, Atom b) {
+        Bond sample = new Bond(a, b);
+        for (Bond bond : a.bonds) {
+            if (bond.equals(sample)) {
+                return bond;
+            }
+        }
+        return null;
+    }
+    
     @Override
     public int hashCode() {
         return 997 * a.id + b.id;

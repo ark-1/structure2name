@@ -3,27 +3,15 @@ package com.epam.structure2name;
 import com.epam.indigo.IndigoObject;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeMap;
 
-public class Alkane extends Molecule {
-    
-    public final BranchComparator headBranchComparator =
-            new BranchComparator(true), tailBranchComparator =
-            new BranchComparator(false);
-    
-    public static final String  SUFFIX = "ane", SHORT_SUFFIX = "an",
-                                GROUP_SUFFIX = "yl", LINEARITY_PREFIX = "n", 
-                                SEPARATOR = "-", NUMBERS_SEPARATOR = ",";
+public class Alkane extends AcyclicHydrocarbon {
+    public static final String  SUFFIX = "ane", SHORT_SUFFIX = "an", 
+                                LINEARITY_PREFIX = "n";
     
     public Alkane(IndigoObject molecule) throws IOException {
-        super(molecule, true);
-    }
-    
-    private Alkane(IndigoObject molecule, boolean onlyCarbons) 
-            throws IllegalAccessException, IOException {
-        throw new IllegalAccessException();
+        super(molecule);
     }
 
     @Override
@@ -94,64 +82,21 @@ public class Alkane extends Molecule {
         return depthDfs.result();
     }
     
-    public Atom getDeepest(Atom start) {
-        DFS<Atom> deepestDfs = new DFS<Atom>() {
-            private int maxDepth = -1, currentDepth = 0;
-            private Atom res = null;
-            
-            @Override
-            public void enter(Atom v) {
-                currentDepth++;
-                if (currentDepth > maxDepth) {
-                    maxDepth = currentDepth;
-                    res = v;
-                }
-            }
-
-            @Override
-            public void exit(Atom v) {
-                currentDepth--;
-            }
-
-            @Override
-            public Atom result() {
-                return res;
-            }
-        };
-        deepestDfs.dfs(start);
-        return deepestDfs.result();
-    }
-    
-    public HashSet<Atom> getCenters() {
-        return getCenters(getAnyAtom());
-    }
-    
+    @Override
     public HashSet<Atom> getCenters(Atom start) {
         HashSet<Atom> res = new HashSet<>();
-        Atom s = Alkane.this.getDeepest(start);
-        ArrayList<Atom> path = getPath(s, Alkane.this.getDeepest(s));
+        Atom s = getDeepest(start);
+        ArrayList<Atom> path = getPath(s, getDeepest(s));
         res.add(path.get(path.size() / 2));
         res.add(path.get(path.size() - 1 - path.size() / 2));
         return res;
     }
     
-    public boolean isComplex(String name) {
-        for (char c : name.toCharArray()) {
-            if (Character.isDigit(c)) {
-                return true;
-            }
-        }
-        if (name.contains(SEPARATOR)) {
-            return true;
-        }
-        return false;
-    }
-    
+    @Override
     public String getShortName(ArrayList<Atom> chain) {
         ArrayList<String> substituents = new ArrayList<>();
         ArrayList<Integer> substituentCoordinates = new ArrayList<>();
         ArrayList<Integer> substituentAdjoiningPoints = new ArrayList<>();
-        ArrayList<String> substituentBaseNames = new ArrayList<>();
         for (int i = 0; i < chain.size(); i++) {
             Atom atom = chain.get(i);
             HashSet<Atom> neighbors = atom.neighbors();
@@ -219,84 +164,14 @@ public class Alkane extends Molecule {
         }
         return result + roots[chain.size()];
     }
-    
-    public ArrayList<Atom> getParentChain(Atom center, Atom secondCenter) {
-        BranchDFS branchDFS = new BranchDFS(center, 
-                                            headBranchComparator);
-        branchDFS.dfs(secondCenter);
-        BranchData head1 = branchDFS.result();
-        branchDFS = new BranchDFS(secondCenter, headBranchComparator);
-        branchDFS.dfs(center);
-        BranchData head2 = branchDFS.result();
-        branchDFS = new BranchDFS(center, tailBranchComparator);
-        branchDFS.dfs(secondCenter);
-        BranchData tail1 = branchDFS.result();
-        branchDFS = new BranchDFS(secondCenter, tailBranchComparator);
-        branchDFS.dfs(center);
-        BranchData tail2 = branchDFS.result();
-        head1.connect(tail2);
-        head2.connect(tail1);
-        if (headBranchComparator.compare(head1, head2) > 0) {
-            Collections.reverse(head1.chain);
-            return head1.chain;
-        } else {
-            Collections.reverse(head2.chain);
-            return head2.chain;
-        }
-    }
-    
-    public ArrayList<Atom> getParentChain(Atom center) {
-        BranchDFS branchDFS = new BranchDFS(headBranchComparator);
-        branchDFS.dfs(center);
-        BranchData head = branchDFS.result();
-        if (head.chain.size() > 1) {
-            head.chain.remove(head.chain.size() - 1);
-            branchDFS = new BranchDFS(  head.chain.get(head.chain.size() - 1), 
-                                        tailBranchComparator);
-            branchDFS.dfs(center);
-            head.connect(branchDFS.result());
-        }
-        return head.chain;
-    }
-
-    public ArrayList<Atom> getGroupParentChain(Atom start) {
-        HashSet<Atom> c = getCenters(start);
-        if (c.size() == 1 && c.iterator().next().equals(start)) {
-            return getParentChain(start);
-        }
-        BranchDFS branchDFS = new BranchDFS(tailBranchComparator);
-        branchDFS.dfs(start);
-        BranchData tail = branchDFS.result();
-        BranchData head;
-        if (tail.chain.size() > 1) {
-            tail.chain.remove(tail.chain.size() - 1);
-            branchDFS = new BranchDFS(  tail.chain.get(tail.chain.size() - 1), 
-                                        headBranchComparator);
-            branchDFS.dfs(start);
-            head = branchDFS.result();
-            head.connect(tail);
-        } else {
-            head = tail;
-        }
-        return head.chain;
-    }
 
     
-    public static boolean isAlkane(Molecule molecule) {
-        int atoms = 0, bonds = 0;
-        for (Atom atom : molecule.atoms()) {
-            atoms++;
-            if (atom.atomicNumber != Atom.CARBON_NUMBER &&
-                atom.atomicNumber != Atom.HYDROGEN_NUMBER) {
-                return false;
-            }
-        }
+    public static boolean isAlkane(AcyclicHydrocarbon molecule) {
         for (Bond bond : molecule.bonds()) {
-            bonds++;
             if (bond.bondOrder != Bond.SINGLE_BOND) {
                 return false;
             }
         }
-        return atoms - 1 == bonds;
+        return true;
     }
 }

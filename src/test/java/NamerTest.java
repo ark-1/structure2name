@@ -5,8 +5,6 @@
  */
 
 import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoObject;
-import com.epam.structure2name.Alkane;
 import com.epam.structure2name.Namer;
 import java.io.IOException;
 import org.junit.Test;
@@ -17,7 +15,7 @@ import org.junit.Before;
  *
  * @author ARK1
  */
-public class AlkaneTest {
+public class NamerTest {
     Indigo indigo;
    
     @Before
@@ -42,7 +40,16 @@ public class AlkaneTest {
                 indigo.loadMolecule("CCC(C)CC(C(CC)C(C)C)C(C)(C)CC(C)C")));
     }
     
-    public AlkaneTest() {
+    @Test
+    public void testBasicAcyclicHydrocarbonGetName() throws IOException {
+        assertEquals("6-(buta-1,3-dien-2-yl)deca-1,8-diyne", 
+                Namer.structure2name(
+                indigo.loadMolecule("CC#CCC(CCCC#C)C(=C)C=C")));
+        assertEquals("5-(propan-2-ylidene)deca-1,8-diyne", Namer.structure2name(
+                indigo.loadMolecule("CC#CCCC(CCC#C)=C(C)C")));
+    }
+    
+    public NamerTest() {
     }
     
 }

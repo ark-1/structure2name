@@ -8,11 +8,15 @@ public class Namer {
     public static Molecule initialiseMolecule(IndigoObject molecule) 
             throws IOException {
         Molecule mol = new Molecule(molecule);
-        if (Alkane.isAlkane(mol)) {
-            Alkane alk = new Alkane(molecule);
-            mol = alk;
-            if (LinearAlkane.isLinearAlkane(alk)) {
-                mol = new LinearAlkane(molecule);
+        if (AcyclicHydrocarbon.isAcyclicHydrocarbon(mol)) {
+            AcyclicHydrocarbon ah = new AcyclicHydrocarbon(molecule);
+            mol = ah;
+            if (Alkane.isAlkane(ah)) {
+                Alkane alk = new Alkane(molecule);
+                mol = alk;
+                if (LinearAlkane.isLinearAlkane(alk)) {
+                    mol = new LinearAlkane(molecule);
+                }
             }
         }
         return mol;
