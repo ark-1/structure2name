@@ -91,6 +91,10 @@ public class AcyclicHydrocarbon extends Molecule {
 
     @Override
     public String getName() {
+        return getName(false);
+    }
+    
+    public String getName(boolean trivial) {
         Atom[] centers = new Atom[2];
         int j = 0;
         for (Atom center : getCenters()) {
@@ -102,7 +106,7 @@ public class AcyclicHydrocarbon extends Molecule {
         } else {
             chain = getParentChain(centers[0], centers[1]);
         }
-        return getShortName(chain) + getSuffixes(chain);
+        return getShortName(chain, trivial) + getSuffixes(chain);
     }
     
     public boolean isComplex(String name) {
@@ -114,7 +118,7 @@ public class AcyclicHydrocarbon extends Molecule {
         return name.contains(SEPARATOR);
     }
     
-    public String getShortName(ArrayList<Atom> chain) {
+    public String getShortName(ArrayList<Atom> chain, boolean trivial) {
         ArrayList<String> substituents = new ArrayList<>();
         ArrayList<Integer> substituentCoordinates = new ArrayList<>();
         ArrayList<Integer> substituentAdjoiningPoints = new ArrayList<>();
@@ -138,7 +142,7 @@ public class AcyclicHydrocarbon extends Molecule {
                 String substituentSuffixes = getShortSuffixes(groupChain);
                 substituentUnsaturated.add(!substituentSuffixes.equals(""));
                 substituents.add(roots[groupChain.size()] + substituentSuffixes 
-                                 + "$" + getShortName(groupChain) + 
+                                 + "$" + getShortName(groupChain, trivial) + 
                                  substituentSuffixes +
                                  (removed.bondOrder == Bond.DOUBLE_BOND ? "=" : 
                                   removed.bondOrder == Bond.TRIPLE_BOND ? "#" :
@@ -199,6 +203,9 @@ public class AcyclicHydrocarbon extends Molecule {
                 default:
                     group += GROUP_SUFFIX;
                     break;
+            }
+            if (trivial_radical_names.containsKey(group)) {
+                group = trivial_radical_names.get(group);
             }
             if (isComplex(group)) {
                 group = complexFactors[j] + "(" + group + ")";

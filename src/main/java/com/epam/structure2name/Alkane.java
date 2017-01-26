@@ -23,9 +23,10 @@ public class Alkane extends AcyclicHydrocarbon {
             centers[i++] = center;
         }
         if (centers[1] == null) {
-            return getShortName(getParentChain(centers[0])) + SUFFIX;
+            return getShortName(getParentChain(centers[0]), false) + SUFFIX;
         }
-        return getShortName(getParentChain(centers[0], centers[1])) + SUFFIX;
+        return getShortName(getParentChain(centers[0], centers[1]), false) + 
+                SUFFIX;
     }
     
     public ArrayList<Atom> getPath(Atom start, final Atom target) {
@@ -94,7 +95,10 @@ public class Alkane extends AcyclicHydrocarbon {
     }
     
     @Override
-    public String getShortName(ArrayList<Atom> chain) {
+    public String getShortName(ArrayList<Atom> chain, boolean trivial) {
+        if (trivial) {
+            throw new IllegalArgumentException("Not imlemented");
+        }
         ArrayList<String> substituents = new ArrayList<>();
         ArrayList<Integer> substituentCoordinates = new ArrayList<>();
         ArrayList<Integer> substituentAdjoiningPoints = new ArrayList<>();
@@ -114,7 +118,7 @@ public class Alkane extends AcyclicHydrocarbon {
                 substituentAdjoiningPoints.add(
                         groupChain.indexOf(neighbor) + 1);
                 substituents.add(roots[groupChain.size()] + "$" +
-                                 getShortName(groupChain));
+                                 getShortName(groupChain, false));
                 neighbor.bonds.add(new Bond(atom, neighbor));
             }
         }

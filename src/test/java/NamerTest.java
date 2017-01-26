@@ -51,6 +51,15 @@ public class NamerTest {
                 indigo.loadMolecule("CC#CCCC(CCC#C)=C(C)C")));
     }
     
+    @Test
+    public void testBasicTrivialAcyclicHydrocarbonGetName() throws IOException, 
+            ParseException {
+        assertEquals("4-(propan-2-yl)heptane", 
+                Namer.structure2name(
+                indigo.loadMolecule("CCCC(CCC)C(C)C")));
+    }
+    
+
     public NamerTest() {
     }
     

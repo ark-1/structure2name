@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,8 +35,11 @@ public class Molecule {
     protected final String[] multivalenceSuffixes;
     protected final String[] complexFactors;
     protected final JSONObject language;
+    protected final Map<String, String> trivial_radical_names;
     
     public static final String LANGUAGE_FILE = "language.json";
+    public static final String TRIVIAL_RADICAL_NAMES_FILE = 
+            "trivial_radical_names.json";
     public final String SEPARATOR = "-", NUMBERS_SEPARATOR = ",",
                         GROUP_SUFFIX, CONNECTOR;
     
@@ -114,6 +118,12 @@ public class Molecule {
                 (JSONArray) language.get("multivalence_suffixes"));
         GROUP_SUFFIX = language.get("group_suffix").toString();
         CONNECTOR = language.get("connector").toString();
+        trivial_radical_names = new HashMap<>();
+        for (Object e : ((JSONObject) parser.parse(new FileReader(
+                TRIVIAL_RADICAL_NAMES_FILE))).entrySet()) {
+            trivial_radical_names.put((String) ((Map.Entry) e).getKey(), 
+                                      (String) ((Map.Entry) e).getValue());
+        }
     }
     
     public Molecule(IndigoObject molecule) throws IOException, ParseException {
