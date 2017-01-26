@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -24,21 +28,16 @@ public class Molecule {
     protected final HashSet<Bond> bonds = new HashSet<>();
 
     protected final String[] roots;
-    protected final String[] shortSuffixes;
-    protected final String[] suffixes;
+    protected final String[] shortHydrocarbonSuffixes;
+    protected final String[] hydrocarbonSuffixes;
     protected final String[] factors;
     protected final String[] multivalenceSuffixes;
     protected final String[] complexFactors;
+    protected final JSONObject language;
     
-    public static final String ROOTS_FILE = "roots.txt";
-    public static final String SHORT_SUFFIXES_FILE = "short_suffixes.txt";
-    public static final String SUFFIXES_FILE = "suffixes.txt";
-    public static final String FACTORS_FILE = "factors.txt";
-    public static final String MULTIVALENCE_SUFFIXES_FILE = 
-                               "multivalence_suffixes.txt";
-    public static final String COMPLEX_FACTORS_FILE = "complex_factors.txt";
-    public static final String SEPARATOR = "-", NUMBERS_SEPARATOR = ",",
-                               GROUP_SUFFIX = "yl", CONNECTOR = "a";
+    public static final String LANGUAGE_FILE = "language.json";
+    public final String SEPARATOR = "-", NUMBERS_SEPARATOR = ",",
+                        GROUP_SUFFIX, CONNECTOR;
     
     public int getMaxAtomID() {
         return maxAtomID;
@@ -92,21 +91,37 @@ public class Molecule {
         return null;
     }
     
-    public Molecule() throws IOException {
-        roots = loadFromFile(ROOTS_FILE);
-        shortSuffixes = loadFromFile(SHORT_SUFFIXES_FILE);
-        suffixes = loadFromFile(SUFFIXES_FILE);
-        factors = loadFromFile(FACTORS_FILE);
-        multivalenceSuffixes = loadFromFile(MULTIVALENCE_SUFFIXES_FILE);
-        complexFactors = loadFromFile(COMPLEX_FACTORS_FILE);
+    private String[] parseJSONArrayOfStrings(JSONArray array) {
+        String[] res = new String[array.size()];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = array.get(i).toString();
+        }
+        return res;
     }
     
-    public Molecule(IndigoObject molecule) throws IOException {
+    public Molecule() throws IOException, ParseException {
+        JSONParser parser = new JSONParser();
+        language = (JSONObject) parser.parse(new FileReader(LANGUAGE_FILE));
+        roots = parseJSONArrayOfStrings((JSONArray) language.get("roots"));
+        shortHydrocarbonSuffixes = parseJSONArrayOfStrings(
+                (JSONArray) language.get("short_hydrocarbon_suffixes"));
+        hydrocarbonSuffixes = parseJSONArrayOfStrings(
+                (JSONArray) language.get("hydrocarbon_suffixes"));
+        factors = parseJSONArrayOfStrings((JSONArray) language.get("factors"));
+        complexFactors = parseJSONArrayOfStrings(
+                (JSONArray) language.get("complex_factors"));
+        multivalenceSuffixes = parseJSONArrayOfStrings(
+                (JSONArray) language.get("multivalence_suffixes"));
+        GROUP_SUFFIX = language.get("group_suffix").toString();
+        CONNECTOR = language.get("connector").toString();
+    }
+    
+    public Molecule(IndigoObject molecule) throws IOException, ParseException {
         this(molecule, false);
     }
     
     public Molecule(IndigoObject molecule, boolean onlyCarbons) 
-            throws IOException {
+            throws IOException, ParseException {
         this();
         HashMap<Integer, Atom> mol = new HashMap<>();
         for (IndigoObject atom : molecule.iterateAtoms()) {

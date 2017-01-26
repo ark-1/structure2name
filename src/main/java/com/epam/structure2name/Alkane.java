@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeMap;
+import org.json.simple.parser.ParseException;
 
 public class Alkane extends AcyclicHydrocarbon {
     public static final String  SUFFIX = "ane", SHORT_SUFFIX = "an", 
                                 LINEARITY_PREFIX = "n";
     
-    public Alkane(IndigoObject molecule) throws IOException {
+    public Alkane(IndigoObject molecule) throws IOException, ParseException {
         super(molecule);
     }
 

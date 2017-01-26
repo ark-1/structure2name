@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.TreeMap;
+import org.json.simple.parser.ParseException;
 
 public class AcyclicHydrocarbon extends Molecule {
     public final BranchComparator headBranchComparator =
@@ -41,18 +42,18 @@ public class AcyclicHydrocarbon extends Molecule {
             res += CONNECTOR;
         }
         if (doubleBonds == 0 && tripleBonds == 0) {
-            return res + suffixes[Bond.SINGLE_BOND];
+            return res + hydrocarbonSuffixes[Bond.SINGLE_BOND];
         }
         if (doubleBonds > 0) {
             res += dres.substring(0, dres.length() - 1) + SEPARATOR + 
                    factors[doubleBonds];
             if (tripleBonds == 0) {
-                return res + suffixes[Bond.DOUBLE_BOND];
+                return res + hydrocarbonSuffixes[Bond.DOUBLE_BOND];
             }
-            res += shortSuffixes[Bond.DOUBLE_BOND];
+            res += shortHydrocarbonSuffixes[Bond.DOUBLE_BOND];
         }
         return res + tres.substring(0, tres.length() - 1) + SEPARATOR + 
-               factors[tripleBonds] + suffixes[Bond.TRIPLE_BOND];
+               factors[tripleBonds] + hydrocarbonSuffixes[Bond.TRIPLE_BOND];
     }
     
     public String getShortSuffixes(ArrayList<Atom> chain) {
@@ -77,11 +78,11 @@ public class AcyclicHydrocarbon extends Molecule {
         }
         if (doubleBonds > 0) {
             res += dres.substring(0, dres.length() - 1) + SEPARATOR + 
-                   factors[doubleBonds] + shortSuffixes[Bond.DOUBLE_BOND];
+                   factors[doubleBonds] + shortHydrocarbonSuffixes[Bond.DOUBLE_BOND];
         }
         if (tripleBonds > 0) {
             res += tres.substring(0, tres.length() - 1) + SEPARATOR + 
-                   factors[tripleBonds] + shortSuffixes[Bond.TRIPLE_BOND];
+                   factors[tripleBonds] + shortHydrocarbonSuffixes[Bond.TRIPLE_BOND];
         }
         return res;
     }
@@ -132,10 +133,11 @@ public class AcyclicHydrocarbon extends Molecule {
                 ArrayList<Atom> groupChain = getGroupParentChain(neighbor);
                 substituentAdjoiningPoints.add(
                         groupChain.indexOf(neighbor) + 1);
-                String suffixes = getShortSuffixes(groupChain);
-                substituentUnsaturated.add(!suffixes.equals(""));
-                substituents.add(roots[groupChain.size()] + suffixes + "$" +
-                                 getShortName(groupChain) + suffixes +
+                String substituentSuffixes = getShortSuffixes(groupChain);
+                substituentUnsaturated.add(!substituentSuffixes.equals(""));
+                substituents.add(roots[groupChain.size()] + substituentSuffixes 
+                                 + "$" + getShortName(groupChain) + 
+                                 substituentSuffixes +
                                  (removed.bondOrder == Bond.DOUBLE_BOND ? "=" : 
                                   removed.bondOrder == Bond.TRIPLE_BOND ? "#" :
                                   ""));
@@ -148,7 +150,7 @@ public class AcyclicHydrocarbon extends Molecule {
             int adjoiningPoint = substituentAdjoiningPoints.get(i);
             if (adjoiningPoint != 1) {
                 substituent += (substituentUnsaturated.get(i) ? "" :
-                               shortSuffixes[Bond.SINGLE_BOND]) +
+                               shortHydrocarbonSuffixes[Bond.SINGLE_BOND]) +
                                SEPARATOR + adjoiningPoint + SEPARATOR;
             }
             int coordinate = substituentCoordinates.get(i);
@@ -216,7 +218,8 @@ public class AcyclicHydrocarbon extends Molecule {
         return s;
     }
     
-    public AcyclicHydrocarbon(IndigoObject molecule) throws IOException {
+    public AcyclicHydrocarbon(IndigoObject molecule) throws IOException, 
+            ParseException {
         super(molecule, true);
     }
     

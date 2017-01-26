@@ -7,6 +7,7 @@
 import com.epam.indigo.Indigo;
 import com.epam.structure2name.Namer;
 import java.io.IOException;
+import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -24,13 +25,13 @@ public class NamerTest {
     }
    
     @Test
-    public void testBasicLinearGetName() throws IOException {
+    public void testBasicLinearGetName() throws IOException, ParseException {
         assertEquals("n-hexane", Namer.structure2name(
                 indigo.loadMolecule("CCCCCC")));
     }
     
     @Test
-    public void testBasicAlkaneGetName() throws IOException {
+    public void testBasicAlkaneGetName() throws IOException, ParseException {
         assertEquals("3,4-dimethylhexane", Namer.structure2name(
                 indigo.loadMolecule("CCC(C)C(C)CC")));
         assertEquals("4,4,7-trimethyl-6-propyldecane", Namer.structure2name(
@@ -41,7 +42,8 @@ public class NamerTest {
     }
     
     @Test
-    public void testBasicAcyclicHydrocarbonGetName() throws IOException {
+    public void testBasicAcyclicHydrocarbonGetName() throws IOException, 
+            ParseException {
         assertEquals("6-(buta-1,3-dien-2-yl)deca-1,8-diyne", 
                 Namer.structure2name(
                 indigo.loadMolecule("CC#CCC(CCCC#C)C(=C)C=C")));

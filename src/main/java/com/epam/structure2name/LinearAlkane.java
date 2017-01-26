@@ -2,11 +2,12 @@ package com.epam.structure2name;
 
 import com.epam.indigo.IndigoObject;
 import java.io.IOException;
+import org.json.simple.parser.ParseException;
 
 public class LinearAlkane extends Alkane {
     
     
-    public LinearAlkane(IndigoObject mol) throws IOException {
+    public LinearAlkane(IndigoObject mol) throws IOException, ParseException {
         super(mol);
     }
 
