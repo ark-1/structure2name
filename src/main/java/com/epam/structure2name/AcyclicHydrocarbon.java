@@ -65,11 +65,11 @@ public class AcyclicHydrocarbon extends Molecule {
             switch (bondChain.get(i).bondOrder) {
                 case Bond.DOUBLE_BOND:
                     doubleBonds++;
-                    dres += i + 1 + ",";
+                    dres += i + 1 + NUMBERS_SEPARATOR;
                     break;
                 case Bond.TRIPLE_BOND:
                     tripleBonds++;
-                    tres += i + 1 + ",";
+                    tres += i + 1 + NUMBERS_SEPARATOR;
                     break;
             }
         }
@@ -78,11 +78,13 @@ public class AcyclicHydrocarbon extends Molecule {
         }
         if (doubleBonds > 0) {
             res += dres.substring(0, dres.length() - 1) + SEPARATOR + 
-                   factors[doubleBonds] + shortHydrocarbonSuffixes[Bond.DOUBLE_BOND];
+                   factors[doubleBonds] + 
+                   shortHydrocarbonSuffixes[Bond.DOUBLE_BOND];
         }
         if (tripleBonds > 0) {
             res += tres.substring(0, tres.length() - 1) + SEPARATOR + 
-                   factors[tripleBonds] + shortHydrocarbonSuffixes[Bond.TRIPLE_BOND];
+                   factors[tripleBonds] + 
+                   shortHydrocarbonSuffixes[Bond.TRIPLE_BOND];
         }
         return res;
     }
